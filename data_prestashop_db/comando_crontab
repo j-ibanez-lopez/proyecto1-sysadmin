@@ -1,0 +1,2 @@
+55 23 * * * mysqldump -u user_prestashop bitnami_database > backup_bitnami_db.sql
+

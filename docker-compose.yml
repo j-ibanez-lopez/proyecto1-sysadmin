@@ -1,0 +1,61 @@
+version: '2'
+services:
+  mariadb:
+#    image: docker.io/bitnami/mariadb:10.3
+    build: .
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+#      - MARIADB_PASSWORD=
+      - MARIADB_USER=user_prestashop
+      - MARIADB_DATABASE=bitnami_database
+    restart: always
+    volumes:
+      - 'data_prestashop_db:/bitnami/mariadb'
+  prestashop:
+    image: docker.io/bitnami/prestashop:1.7    
+#    build: .
+    ports:
+      - '80:8080'
+      - '443:8443'
+    environment:
+#      - PRESTASHOP_HOST=192.168.88.112
+      - PRESTASHOP_HOST=192.168.43.63
+      - PRESTASHOP_DATABASE_HOST=mariadb
+      - PRESTASHOP_DATABASE_PORT_NUMBER=3306
+      - PRESTASHOP_DATABASE_USER=user_prestashop
+      - PRESTASHOP_DATABASE_NAME=bitnami_database
+      - ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    volumes:
+      - 'data_prestashop:/bitnami/prestashop'
+    depends_on:
+      - mariadb
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    links:
+      - mariadb
+      - prestashop
+    command: --schedule "59 59 23 * * mon"
+#  periodic-backup:
+#    build: ./periodic-backup
+#    container_name: database-backup
+#    environment:
+#      - MYSQL_CONTAINER_NAME=server
+#      - MYSQL_DATABASE=bitnami_database
+#      - ALLOW_EMPTY_PASSWORD=yes
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#      - /opt/mysql/backup:/opt/mysql/backup
+#    links:
+#      - mariadb
+#    command: crond -f -d 8
+##    command: --schedule "59 15 23 * * mon"
+#    restart: always
+volumes:
+ data_prestashop_db:
+    driver: local
+ data_prestashop:
+    driver: local

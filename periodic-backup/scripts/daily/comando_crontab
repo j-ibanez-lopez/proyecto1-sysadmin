@@ -1,0 +1,2 @@
+0 15 * * * /bitnami/mariadb/back_up.sh
+
